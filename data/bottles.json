@@ -1,18 +1,18 @@
 [
     {
-      "id": 1,
+      "id": "1",
       "name": "Cola",
-      "level": 900
+      "level": 1.0
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Fanta",
-      "level": 800
+      "level": 0.8
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "Wasser",
-      "level": 1000
+      "level": 1.0
     }
   ]
   
