@@ -16,13 +16,13 @@ def save_bottle(bottle: Bottle):
     # Bottle ersetzen oder hinzufügen
     updated = False
     for i, b in enumerate(bottles):
-        if b.id == bottle.id:
-            bottles[i] = bottle
+        if b["id"] == bottle.id:
+            bottles[i] = bottle.dict()
             updated = True
             break
 
     if not updated:
-        bottles.append(bottle)
+        bottles.append(bottle.dict())
 
     save_bottles(bottles)
     return {"status": "ok"}
