@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from typing import List
 from api.models.bottle_models import Bottle
-from storage.bottle_storage import load_bottles, save_bottles
+from api.storage.bottle_storage import load_bottles, save_bottles
 
 router = APIRouter()
 
