@@ -1,18 +1,17 @@
 [
-    {
-      "id": "1",
-      "name": "Cola",
-      "level": 1.0
-    },
-    {
-      "id": "2",
-      "name": "Fanta",
-      "level": 0.8
-    },
-    {
-      "id": "3",
-      "name": "Wasser",
-      "level": 1.0
-    }
-  ]
-  
+  {
+    "id": "1",
+    "name": "Cola",
+    "level": 0.8
+  },
+  {
+    "id": "2",
+    "name": "Fanta",
+    "level": 0.8
+  },
+  {
+    "id": "3",
+    "name": "Wasser",
+    "level": 1.0
+  }
+]

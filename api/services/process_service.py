@@ -38,7 +38,7 @@ class ProcessService:
         return {"status": "finished"}
 
     def status(self):
-        return {"state": self.state}
+        return {"status": self.state}
 
     def reset(self):
         self.state = "idle"
