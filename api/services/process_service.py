@@ -1,8 +1,3 @@
-from api.services.safety_service import SafetyService
-from api.services.hydraulic_service import HydraulicService
-from api.services.valve_service import ValveService
-from api.services.weight_service import WeightService
-
 class ProcessService:
     def __init__(self):
         self.safety = SafetyService()
@@ -13,20 +8,24 @@ class ProcessService:
 
     def prepare(self):
         if not self.safety.door_closed():
-            return {"error": "Tür ist offen"}
+            self.state = "error"
+            return {"status": "error", "error": "door_open"}
 
         if not self.safety.glass_present():
-            return {"error": "Kein Glas erkannt"}
+            self.state = "error"
+            return {"status": "error", "error": "no_glass"}
 
         if not self.safety.weight_ok():
-            return {"error": "Gewicht außerhalb Toleranz"}
+            self.state = "error"
+            return {"status": "error", "error": "glass_not_empty"}
 
-        self.state = "ready"
-        return {"status": "bereit"}
+        self.state = "prepare"
+        return {"status": "prepare"}
 
     def start_mix(self):
-        if self.state != "ready":
-            return {"error": "Nicht bereit"}
+        if self.state != "prepare":
+            self.state = "error"
+            return {"status": "error", "error": "not_ready"}
 
         self.hydraulic.down()
         self.state = "mixing"
@@ -34,12 +33,12 @@ class ProcessService:
 
     def finish(self):
         self.hydraulic.up()
-        self.state = "finished"
-        return {"status": "finished"}
+        self.state = "done"
+        return {"status": "done"}
 
     def status(self):
         return {"status": self.state}
 
     def reset(self):
         self.state = "idle"
-        return {"status": "reset"}
+        return {"status": "idle"}
