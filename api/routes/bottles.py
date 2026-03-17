@@ -9,7 +9,20 @@ router = APIRouter()
 def get_bottles():
     return load_bottles()
 
-@router.post("/bottles", response_model=List[Bottle])
-def set_bottles(bottles: List[Bottle]):
-    save_bottles([b.model_dump() for b in bottles])
-    return bottles
+@router.post("/bottles")
+def save_bottle(bottle: Bottle):
+    bottles = load_bottles()
+
+    # Bottle ersetzen oder hinzufügen
+    updated = False
+    for i, b in enumerate(bottles):
+        if b.id == bottle.id:
+            bottles[i] = bottle
+            updated = True
+            break
+
+    if not updated:
+        bottles.append(bottle)
+
+    save_bottles(bottles)
+    return {"status": "ok"}
