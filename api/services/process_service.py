@@ -1,3 +1,6 @@
+import threading
+import time
+
 from api.services.safety_service import SafetyService
 from api.services.hydraulic_service import HydraulicService
 from api.services.valve_service import ValveService
@@ -11,7 +14,11 @@ class ProcessService:
         self.valves = ValveService()
         self.weight = WeightService()
         self.state = "idle"
+        self.current_thread = None
 
+    # ------------------------------------------------------------
+    # PREPARE
+    # ------------------------------------------------------------
     def prepare(self):
         if not self.safety.door_closed():
             self.state = "error"
@@ -28,23 +35,62 @@ class ProcessService:
         self.state = "prepare"
         return {"status": "prepare"}
 
+    # ------------------------------------------------------------
+    # START MIX (Simulation)
+    # ------------------------------------------------------------
     def start_mix(self):
         if self.state != "prepare":
             self.state = "error"
             return {"status": "error", "error": "not_ready"}
 
-        self.hydraulic.down()
         self.state = "mixing"
+
+        # Simulation in separatem Thread starten
+        self.current_thread = threading.Thread(target=self._simulate_mix)
+        self.current_thread.start()
+
         return {"status": "mixing"}
 
+    # ------------------------------------------------------------
+    # SIMULATION DES MIXVORGANGS
+    # ------------------------------------------------------------
+    def _simulate_mix(self):
+        try:
+            # 1. Hydraulik runter
+            time.sleep(1.5)
+
+            # 2. Zutaten simulieren
+            #    Jede Zutat dauert 1 Sekunde
+            #    (später ersetzt durch echte Ventilsteuerung)
+            for i in range(3):  # 3 Zutaten simuliert
+                time.sleep(1.0)
+
+            # 3. Hydraulik hoch
+            time.sleep(1.5)
+
+            # 4. Fertig
+            self.state = "done"
+
+        except Exception as e:
+            self.state = "error"
+            print("Simulation error:", e)
+
+    # ------------------------------------------------------------
+    # FINISH (wird von der Simulation gesetzt)
+    # ------------------------------------------------------------
     def finish(self):
-        self.hydraulic.up()
         self.state = "done"
         return {"status": "done"}
 
+    # ------------------------------------------------------------
+    # STATUS
+    # ------------------------------------------------------------
     def status(self):
         return {"status": self.state}
 
+    # ------------------------------------------------------------
+    # RESET
+    # ------------------------------------------------------------
     def reset(self):
         self.state = "idle"
         return {"status": "idle"}
