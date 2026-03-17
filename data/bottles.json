@@ -2,20 +2,17 @@
     {
       "id": 1,
       "name": "Cola",
-      "volume_ml": 1000,
-      "current_ml": 800
+      "level": 900
     },
     {
       "id": 2,
       "name": "Fanta",
-      "volume_ml": 1000,
-      "current_ml": 500
+      "level": 800
     },
     {
       "id": 3,
       "name": "Wasser",
-      "volume_ml": 1500,
-      "current_ml": 1500
+      "level": 1000
     }
   ]
   

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 class Bottle(BaseModel):
-    id: str
+    id: int
     name: str
     level: float  # Liter
