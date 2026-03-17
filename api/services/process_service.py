@@ -1,3 +1,9 @@
+from api.services.safety_service import SafetyService
+from api.services.hydraulic_service import HydraulicService
+from api.services.valve_service import ValveService
+from api.services.weight_service import WeightService
+
+
 class ProcessService:
     def __init__(self):
         self.safety = SafetyService()
