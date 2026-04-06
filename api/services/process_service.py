@@ -86,7 +86,22 @@ class ProcessService:
     # STATUS
     # ------------------------------------------------------------
     def status(self):
-        return {"status": self.state}
+    # Grundstatus
+    response = {"status": self.state}
+
+    # ESP abfragen
+    try:
+        esp_status = self.esp.get_status()  # erwartet JSON vom ESP
+        if esp_status and "glass_present" in esp_status:
+            response["glass_present"] = esp_status["glass_present"]
+        else:
+            response["glass_present"] = None  # falls ESP kein Feld liefert
+    except Exception as e:
+        print("ESP error:", e)
+        response["glass_present"] = None  # ESP nicht erreichbar
+
+    return response
+
 
     # ------------------------------------------------------------
     # RESET
