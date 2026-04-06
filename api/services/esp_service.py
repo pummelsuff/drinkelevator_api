@@ -4,7 +4,7 @@ class ESPService:
     def __init__(self, ip="192.168.178.70"):
         self.base = f"http://{ip}/hub"
 
-    def status(self):
+    def get_status(self):
         try:
             r = requests.get(f"{self.base}/status", timeout=2)
             return r.json()

@@ -5,6 +5,8 @@ from api.services.safety_service import SafetyService
 from api.services.hydraulic_service import HydraulicService
 from api.services.valve_service import ValveService
 from api.services.weight_service import WeightService
+from api.services.esp_service import ESPService
+
 
 
 class ProcessService:
@@ -13,6 +15,7 @@ class ProcessService:
         self.hydraulic = HydraulicService()
         self.valves = ValveService()
         self.weight = WeightService()
+        self.esp = ESPService() 
         self.state = "idle"
         self.current_thread = None
 
@@ -86,21 +89,22 @@ class ProcessService:
     # STATUS
     # ------------------------------------------------------------
     def status(self):
-    # Grundstatus
-    response = {"status": self.state}
-
     # ESP abfragen
-    try:
-        esp_status = self.esp.get_status()  # erwartet JSON vom ESP
-        if esp_status and "glass_present" in esp_status:
-            response["glass_present"] = esp_status["glass_present"]
-        else:
-            response["glass_present"] = None  # falls ESP kein Feld liefert
-    except Exception as e:
-        print("ESP error:", e)
-        response["glass_present"] = None  # ESP nicht erreichbar
+        try:
+            esp_status = self.esp.get_status()
+            if esp_status:
+                response = {
+                    "status": esp_status.get("state", self.state),
+                    "glass_present": esp_status.get("glass_present", None)
+                }
+            else:
+                response = {"status": self.state, "glass_present": None}
+        except Exception as e:
+            print("ESP error:", e)
+            response = {"status": self.state, "glass_present": None}
 
-    return response
+        return response
+
 
 
     # ------------------------------------------------------------
