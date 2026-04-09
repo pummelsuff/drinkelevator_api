@@ -8,82 +8,101 @@ from api.services.weight_service import WeightService
 from api.services.esp_service import ESPService
 
 
-
 class ProcessService:
     def __init__(self):
         self.safety = SafetyService()
         self.hydraulic = HydraulicService()
         self.valves = ValveService()
         self.weight = WeightService()
-        self.esp = ESPService() 
+        self.esp = ESPService()
+
+        # Prozess-State (Mix-Logik)
         self.state = "idle"
+
+        # Lift-State (Mechanik)
+        self.lift_state = "UNKNOWN"
+
         self.current_thread = None
+
+    # ------------------------------------------------------------
+    # STATE MACHINE HELPERS
+    # ------------------------------------------------------------
+    def _set_state(self, new_state):
+        allowed = {
+            "idle": ["prepare"],
+            "prepare": ["mixing", "error"],
+            "mixing": ["done", "error"],
+            "done": ["idle"],
+            "error": ["idle"]
+        }
+
+        if new_state in allowed.get(self.state, []):
+            print(f"STATE: {self.state} → {new_state}")
+            self.state = new_state
+        else:
+            print(f"INVALID STATE TRANSITION: {self.state} → {new_state}")
+            self.state = "error"
 
     # ------------------------------------------------------------
     # PREPARE
     # ------------------------------------------------------------
     def prepare(self):
+        if self.state not in ["idle", "done"]:
+            return {"status": "error", "error": "invalid_state"}
+
         if not self.safety.door_closed():
-            self.state = "error"
+            self._set_state("error")
             return {"status": "error", "error": "door_open"}
 
         if not self.safety.glass_present():
-            self.state = "error"
+            self._set_state("error")
             return {"status": "error", "error": "no_glass"}
 
         if not self.safety.weight_ok():
-            self.state = "error"
+            self._set_state("error")
             return {"status": "error", "error": "glass_not_empty"}
 
-        self.state = "prepare"
+        self._set_state("prepare")
         return {"status": "prepare"}
 
     # ------------------------------------------------------------
-    # START MIX (Simulation)
+    # START MIX
     # ------------------------------------------------------------
     def start_mix(self):
         if self.state != "prepare":
-            self.state = "error"
             return {"status": "error", "error": "not_ready"}
 
-        self.state = "mixing"
+        self._set_state("mixing")
 
-        # Simulation in separatem Thread starten
         self.current_thread = threading.Thread(target=self._simulate_mix)
         self.current_thread.start()
 
         return {"status": "mixing"}
 
     # ------------------------------------------------------------
-    # SIMULATION DES MIXVORGANGS
+    # SIMULATION
     # ------------------------------------------------------------
     def _simulate_mix(self):
         try:
-            # 1. Hydraulik runter
+            # Lift runter
+            self.lift_state = "MOVING_DOWN"
             time.sleep(1.5)
+            self.lift_state = "AT_BOTTOM"
 
-            # 2. Zutaten simulieren
-            #    Jede Zutat dauert 1 Sekunde
-            #    (später ersetzt durch echte Ventilsteuerung)
-            for i in range(3):  # 3 Zutaten simuliert
+            # Zutaten simulieren
+            for i in range(3):
                 time.sleep(1.0)
 
-            # 3. Hydraulik hoch
+            # Lift hoch
+            self.lift_state = "MOVING_UP"
             time.sleep(1.5)
+            self.lift_state = "AT_TOP"
 
-            # 4. Fertig
-            self.state = "done"
+            self._set_state("done")
 
         except Exception as e:
-            self.state = "error"
             print("Simulation error:", e)
-
-    # ------------------------------------------------------------
-    # FINISH (wird von der Simulation gesetzt)
-    # ------------------------------------------------------------
-    def finish(self):
-        self.state = "done"
-        return {"status": "done"}
+            self._set_state("error")
 
     # ------------------------------------------------------------
     # STATUS
@@ -92,32 +111,25 @@ class ProcessService:
         try:
             esp_status = self.esp.get_status()
 
-            response = {
-                "status": self.state,  # ← Prozesszustand bleibt führend
-                "lift_state": None,
-                "glass_present": None
-            }
-
             if esp_status:
-                response["lift_state"] = esp_status.get("state")
-                response["glass_present"] = esp_status.get("glass_present")
-
-            return response
+                self.lift_state = esp_status.get("state", self.lift_state)
+                glass_present = esp_status.get("glass_present", None)
+            else:
+                glass_present = None
 
         except Exception as e:
             print("ESP error:", e)
-            return {
-                "status": self.state,
-                "lift_state": None,
-                "glass_present": None
-            }
+            glass_present = None
 
-
-
+        return {
+            "status": self.state,
+            "lift_state": self.lift_state,
+            "glass_present": glass_present
+        }
 
     # ------------------------------------------------------------
     # RESET
     # ------------------------------------------------------------
     def reset(self):
-        self.state = "idle"
+        self._set_state("idle")
         return {"status": "idle"}
