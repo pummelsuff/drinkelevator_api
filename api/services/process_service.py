@@ -89,21 +89,29 @@ class ProcessService:
     # STATUS
     # ------------------------------------------------------------
     def status(self):
-    # ESP abfragen
         try:
             esp_status = self.esp.get_status()
+
+            response = {
+                "status": self.state,  # ← Prozesszustand bleibt führend
+                "lift_state": None,
+                "glass_present": None
+            }
+
             if esp_status:
-                response = {
-                    "status": esp_status.get("state", self.state),
-                    "glass_present": esp_status.get("glass_present", None)
-                }
-            else:
-                response = {"status": self.state, "glass_present": None}
+                response["lift_state"] = esp_status.get("state")
+                response["glass_present"] = esp_status.get("glass_present")
+
+            return response
+
         except Exception as e:
             print("ESP error:", e)
-            response = {"status": self.state, "glass_present": None}
+            return {
+                "status": self.state,
+                "lift_state": None,
+                "glass_present": None
+            }
 
-        return response
 
 
 
