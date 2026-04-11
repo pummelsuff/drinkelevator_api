@@ -29,11 +29,11 @@ class ProcessService:
     # ------------------------------------------------------------
     def _set_state(self, new_state):
         allowed = {
-            "idle": ["prepare"],
+            "idle": ["prepare", "mixing", "error"],
             "prepare": ["mixing", "error"],
             "mixing": ["done", "error"],
-            "done": ["idle"],
-            "error": ["idle"]
+            "done": ["idle", "prepare"],
+            "error": ["idle", "prepare"]
         }
 
         if new_state in allowed.get(self.state, []):
@@ -47,8 +47,9 @@ class ProcessService:
     # PREPARE
     # ------------------------------------------------------------
     def prepare(self):
-        if self.state not in ["idle", "done"]:
-            return {"status": "error", "error": "invalid_state"}
+        # Nur verbieten, wenn gerade aktiv gemischt wird
+        if self.state == "mixing":
+            return {"status": "error", "error": "already_mixing"}
 
         if not self.safety.door_closed():
             self._set_state("error")
@@ -69,8 +70,12 @@ class ProcessService:
     # START MIX
     # ------------------------------------------------------------
     def start_mix(self):
-        if self.state != "prepare":
+        # Toleranter: auch aus idle starten, falls prepare-Race
+        if self.state not in ["prepare", "idle"]:
             return {"status": "error", "error": "not_ready"}
+
+        # kleine Verzögerung, damit "prepare" sichtbar bleibt
+        time.sleep(0.3)
 
         self._set_state("mixing")
 
@@ -100,6 +105,8 @@ class ProcessService:
 
             self._set_state("done")
 
+            # WICHTIG: nicht automatisch zurück auf idle,
+            # UI soll "Fertig!" sehen und dann ggf. resetten
         except Exception as e:
             print("Simulation error:", e)
             self._set_state("error")

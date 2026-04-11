@@ -2,12 +2,12 @@
   {
     "id": "1",
     "name": "Cola",
-    "level": 0.0
+    "level": 1.0
   },
   {
     "id": "2",
     "name": "Fanta",
-    "level": 0.0
+    "level": 1.0
   },
   {
     "id": "3",
