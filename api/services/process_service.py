@@ -2,7 +2,7 @@ import threading
 import time
 
 from api.services.safety_service import SafetyService
-from api.services.hydraulic_service import HydraulicService
+from api.services.lift_service import LiftService
 from api.services.valve_service import ValveService
 from api.services.weight_service import WeightService
 from api.services.esp_service import ESPService
@@ -11,7 +11,7 @@ from api.services.esp_service import ESPService
 class ProcessService:
     def __init__(self):
         self.safety = SafetyService()
-        self.hydraulic = HydraulicService()
+        self.lift = LiftService()
         self.valves = ValveService()
         self.weight = WeightService()
         self.esp = ESPService()
