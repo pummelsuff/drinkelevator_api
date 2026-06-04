@@ -17,4 +17,4 @@ def load_json(path: Path, default):
 
 
 def save_json(path: Path, data):
-    path.write_test(json.dumps(data, indent=2), encoding="utf-8")
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")

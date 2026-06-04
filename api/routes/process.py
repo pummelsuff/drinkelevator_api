@@ -1,26 +1,20 @@
 from fastapi import APIRouter
 from api.services.process_service import ProcessService
 
-router = APIRouter(prefix="/mix")
-process = ProcessService()
+router = APIRouter(prefix="/mix", tags=["Mix"])
 
 @router.post("/prepare")
 def prepare():
-    return process.prepare()
+    return ProcessService.prepare()
 
 @router.post("/start")
-def start_mix():
-    return process.start_mix()
+def start_mix(request: dict):
+    return ProcessService.start_mix(request.get("ingredients", {}))
 
 @router.post("/stop")
-def finish():
-    return process.finish()
+def stop_mix():
+    return ProcessService.stop_mix()
 
 @router.get("/status")
-def status():
-    return process.status()
-
-@router.post("/reset")
-def reset():
-    return process.reset()
-
+def get_status():
+    return ProcessService.status()

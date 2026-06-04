@@ -1,25 +1,38 @@
-from api.services.esp_service import ESPService
+import requests
+
+ESP_BASE = "http://192.168.178.70"   # später in config.json
 
 class LiftService:
-    def __init__(self):
-        self.esp = ESPService()
 
-    def up(self):
-        # Motor hochfahren
-        return self.esp.command("MOVE_UP")
+    @staticmethod
+    def up():
+        try:
+            r = requests.post(f"{ESP_BASE}/lift/up", timeout=2)
+            return r.json()
+        except Exception:
+            return {"error": "esp_unreachable"}
 
-    def down(self):
-        # Motor runterfahren
-        return self.esp.command("MOVE_DOWN")
+    @staticmethod
+    def down():
+        try:
+            r = requests.post(f"{ESP_BASE}/lift/down", timeout=2)
+            return r.json()
+        except Exception:
+            return {"error": "esp_unreachable"}
 
-    def stop(self):
-        # Sofort stoppen
-        return self.esp.command("STOP")
+    @staticmethod
+    def stop():
+        try:
+            r = requests.post(f"{ESP_BASE}/lift/stop", timeout=2)
+            return r.json()
+        except Exception:
+            return {"error": "esp_unreachable"}
 
-    def reset(self):
-        # Fehler zurücksetzen
-        return self.esp.command("RESET_ERROR")
-
-    def status(self):
-        # Status vom ESP holen
-        return self.esp.status()
+    @staticmethod
+    def state():
+        try:
+            r = requests.get(f"{ESP_BASE}/lift/status", timeout=2)
+            data = r.json()
+            return data.get("state", "UNKNOWN")
+        except Exception:
+            return "ERROR"
