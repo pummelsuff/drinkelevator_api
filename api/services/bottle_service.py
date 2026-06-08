@@ -1,42 +1,46 @@
-from api.storage.bottle_storage import load_bottles, save_bottles
+import json
+from pathlib import Path
+
+BOTTLES_FILE = Path("data/bottles.json")
+GLASS_FILE = Path("data/glass.json")
+
 
 class BottleService:
 
     @staticmethod
-    def get_all():
-        """Lädt alle Flaschen aus dem Storage."""
-        return load_bottles()
+    def load_bottles():
+        if not BOTTLES_FILE.exists():
+            return []
+        with open(BOTTLES_FILE, "r") as f:
+            return json.load(f)
 
     @staticmethod
-    def update(bottle: dict):
-        """Aktualisiert eine einzelne Flasche."""
-        bottles = load_bottles()
-        for b in bottles:
-            if b["id"] == bottle["id"]:
-                b.update(bottle)
-        save_bottles(bottles)
-        return {"ok": True}
+    def save_bottles(bottles):
+        with open(BOTTLES_FILE, "w") as f:
+            json.dump(bottles, f, indent=2)
 
     @staticmethod
-    def update_after_mix(ingredients: dict):
-        """
-        ingredients = {"valve1": 40, "valve2": 60}
-        Prozent → ml → Level reduzieren
-        """
-        bottles = load_bottles()
-
-        for valve_id, percent in ingredients.items():
-            for b in bottles:
-                if b["id"] == valve_id:
-                    used_ml = BottleService.percent_to_ml(percent)
-                    b["level"] = max(b["level"] - used_ml, 0)
-
-        save_bottles(bottles)
-        return {"ok": True}
+    def load_glass():
+        if not GLASS_FILE.exists():
+            return {"size": 300, "empty_weight": 150}
+        with open(GLASS_FILE, "r") as f:
+            return json.load(f)
 
     @staticmethod
-    def percent_to_ml(percent: float):
-        """Konvertiert Prozent in ml basierend auf Glasgröße."""
-        glass = load_glass()
-        size_ml = glass.get("size_ml", 300)
-        return size_ml * (percent / 100)
+    def percent_to_ml(percent):
+        glass = BottleService.load_glass()
+        size = glass.get("size", 300)
+        return size * (percent / 100.0)
+
+    @staticmethod
+    def update_after_mix(ingredients):
+        bottles = BottleService.load_bottles()
+
+        for bottle in bottles:
+            bid = bottle["id"]
+            if bid in ingredients:
+                percent = ingredients[bid]
+                used_ml = BottleService.percent_to_ml(percent)
+                bottle["level"] = max(bottle["level"] - used_ml, 0)
+
+        BottleService.save_bottles(bottles)

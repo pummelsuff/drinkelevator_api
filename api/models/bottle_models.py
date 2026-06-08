@@ -5,5 +5,5 @@ class Bottle(BaseModel):
     id: str
     name: str
     level: float
-    capacity: float
+    capacity: Optional[float] = None
     valve_id: Optional[str] = None

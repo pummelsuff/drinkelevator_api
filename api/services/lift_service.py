@@ -1,6 +1,6 @@
 import requests
 
-ESP_BASE = "http://192.168.178.70"   # später in config.json
+ESP_BASE = "http://192.168.178.70"
 
 class LiftService:
 
@@ -33,6 +33,15 @@ class LiftService:
         try:
             r = requests.get(f"{ESP_BASE}/lift/status", timeout=2)
             data = r.json()
-            return data.get("state", "UNKNOWN")
+
+            # WICHTIG: App erwartet "status", nicht "state"
+            return {
+                "status": data.get("state", "UNKNOWN"),
+                "glass_present": data.get("glass_present", False)
+            }
+
         except Exception:
-            return "ERROR"
+            return {
+                "status": "ERROR",
+                "glass_present": False
+            }

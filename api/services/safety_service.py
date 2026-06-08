@@ -1,12 +1,16 @@
 class SafetyService:
-    def door_closed(self):
-        return True # Simulation
+    @staticmethod
+    def door_closed():
+        return True  # Simulation
 
-    def glass_present(self):
-        return True # Simulation
+    @staticmethod
+    def glass_present():
+        return True  # Simulation
 
-    def weight_ok(self):
-        return True # Simulation
+    @staticmethod
+    def weight_ok():
+        return True  # Simulation
 
-    def door_status(self):
+    @staticmethod
+    def door_status():
         return {"door_closed": True}
