@@ -3,7 +3,6 @@ from fastapi import FastAPI
 # Routen importieren
 from api.routes.bottles import router as bottles_router
 from api.routes.glass import router as glass_router
-from api.routes.led import router as led_router
 from api.routes.lift import router as lift_router
 from api.routes.process import router as process_router
 from api.routes.safety import router as safety_router
@@ -16,7 +15,6 @@ app = FastAPI(title="DrinkElevator API")
 # Router registrieren
 app.include_router(bottles_router)
 app.include_router(glass_router)
-app.include_router(led_router)
 app.include_router(lift_router)
 app.include_router(process_router)
 app.include_router(safety_router)

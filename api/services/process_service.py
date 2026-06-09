@@ -3,7 +3,6 @@ import time
 
 from api.services.lift_service import LiftService
 from api.services.valve_service import ValveService
-from api.services.led_service import LedService
 from api.services.bottle_service import BottleService
 from api.services.glass_service import GlassService
 from api.services.safety_service import SafetyService
@@ -69,7 +68,7 @@ class ProcessService:
         time.sleep(0.3)
 
         ProcessService._set_state("mixing")
-        LedService.set_color("00FFFF")  # Cyan = Mix läuft
+    
 
         # Lift runter
         LiftService.down()
@@ -89,8 +88,6 @@ class ProcessService:
 
         # Bottle-Level aktualisieren
         BottleService.update_after_mix(ingredients)
-
-        LedService.set_color("00FF00")  # Grün = fertig
         ProcessService._set_state("done")
 
         return {"status": "done"}
@@ -102,7 +99,6 @@ class ProcessService:
     def stop_mix():
         ValveService.close_all()
         LiftService.stop()
-        LedService.set_color("FF0000")  # Rot = abgebrochen
         ProcessService._set_state("stopped")
         return {"status": "stopped"}
 
