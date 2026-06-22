@@ -1,10 +1,27 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 import requests
 
 router = APIRouter(prefix="/lift", tags=["Lift"])
 
 # IP des ESP32 – bitte anpassen falls nötig
 ESP_IP = "http://192.168.178.70"
+
+
+@router.post("/start")
+def lift_start(volume: float = Query(0.2, ge=0.05, le=1.0)):
+    """
+    Startet den Mix-Ablauf am ESP (runter → ventil → hoch).
+    Pi leitet nur weiter; die State Machine läuft auf dem ESP.
+    """
+    try:
+        r = requests.post(
+            f"{ESP_IP}/lift/start",
+            params={"volume": volume},
+            timeout=2,
+        )
+        return r.json()
+    except Exception as e:
+        return {"error": "ESP unreachable", "details": str(e)}
 
 
 @router.post("/up")
