@@ -5,7 +5,7 @@ from api.routes.glass import router as glass_router
 from api.routes.lift import router as lift_router
 from api.routes.safety import router as safety_router
 
-app = FastAPI(title="DrinkElevator API")
+app = FastAPI(title="DrinkElevator API", redirect_slashes=False)
 
 app.include_router(bottles_router)
 app.include_router(glass_router)
