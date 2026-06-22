@@ -1,8 +1,17 @@
 from fastapi import APIRouter
-from api.storage.safety_storage import check_glass_status
 
-router = APIRouter()
+from api.services.lift_service import LiftService
+
+router = APIRouter(tags=["Safety"])
+
 
 @router.get("/safety/check_glass")
 def check_glass():
-    return check_glass_status()
+    status = LiftService.status()
+    if status.get("state") == "ERROR":
+        return {"status": "error", "glass_present": False}
+
+    return {
+        "status": "ok",
+        "glass_present": status.get("glass_present", False),
+    }

@@ -16,12 +16,12 @@ def save_bottle(bottle: Bottle):
     updated = False
     for i, b in enumerate(bottles):
         if b["id"] == bottle.id:
-            bottles[i] = bottle.dict()
+            bottles[i] = bottle.model_dump()
             updated = True
             break
 
     if not updated:
-        bottles.append(bottle.dict())
+        bottles.append(bottle.model_dump())
 
     save_bottles(bottles)
     return {"status": "ok"}
