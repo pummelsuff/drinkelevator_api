@@ -1,14 +1,33 @@
-from fastapi import APIRouter, Query
+from typing import List, Optional
+
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 from api.services.lift_service import LiftService
 
 router = APIRouter(prefix="/lift", tags=["Lift"])
 
 
+class MixIngredient(BaseModel):
+    valve_id: str
+    volume: float = Field(ge=0.01, le=1.0)
+
+
+class LiftStartRequest(BaseModel):
+    volume: float = Field(ge=0.01, le=1.0)
+    ingredients: Optional[List[MixIngredient]] = None
+
+
 @router.post("/start")
-def lift_start(volume: float = Query(0.2, ge=0.01, le=1.0)):
-    """Startet den Mix-Ablauf am ESP. volume in Liter (z. B. 0.2 = 200 ml)."""
-    return LiftService.start(volume)
+def lift_start(body: LiftStartRequest):
+    """Startet den Mix-Ablauf am ESP mit optionalem Zutaten-Ablauf."""
+    ingredients = None
+    if body.ingredients:
+        ingredients = [
+            {"valve_id": item.valve_id, "volume": item.volume}
+            for item in body.ingredients
+        ]
+    return LiftService.start(body.volume, ingredients)
 
 
 @router.post("/up")

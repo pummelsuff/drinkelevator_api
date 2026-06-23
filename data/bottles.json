@@ -1,17 +1,5 @@
 [
-  {
-    "id": "1",
-    "name": "Cola",
-    "level": 0.6000000000000001
-  },
-  {
-    "id": "2",
-    "name": "Fanta",
-    "level": 1.0
-  },
-  {
-    "id": "3",
-    "name": "Wasser",
-    "level": 0.5
-  }
+  { "id": "1", "name": "Cola", "level": 0.8, "valve_id": "1" },
+  { "id": "2", "name": "Fanta", "level": 1.0, "valve_id": "2" },
+  { "id": "3", "name": "Wasser", "level": 0.5, "valve_id": "3" }
 ]
